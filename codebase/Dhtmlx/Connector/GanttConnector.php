@@ -88,9 +88,13 @@ class GanttConnector extends Connector {
         $parent = $action->get_value("parent");
 
         $table = $this->request->get_source();
-        $id    = $this->config->id["db_name"];
-
-        $this->sql->query("UPDATE $table SET parent = $parent WHERE $id = $value");
+		
+		if(method_exists($table, 'getModel') && method_exists($table->getModel(), 'getTable')){
+			$table->find($value)->update(array('parent' => $parent));
+		} else {
+			$id = $this->config->id["db_name"];
+			$this->sql->query("UPDATE $table SET parent = $parent WHERE $id = $value");
+		}
     }
 
     function delete_related_links($action){
